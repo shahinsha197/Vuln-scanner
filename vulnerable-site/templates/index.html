@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexaCorp — Innovation at Scale</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- Vuln #10: Outdated jQuery version disclosed -->
+    <script src="https://code.jquery.com/jquery-1.6.4.min.js"></script>
+    <!-- Vuln #5: Sensitive info in HTML comment -->
+    <!-- TODO: Remove before production — Admin panel: /admin | DB pass: nexadb2024 -->
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">⬡ NexaCorp</div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact</a></li>
+                <li><a href="/login" class="btn-nav">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Innovation at Scale</h1>
+            <p>NexaCorp delivers enterprise technology solutions trusted by over 500 companies worldwide.</p>
+            <a href="/contact" class="btn-primary">Get Started</a>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <h2>Our Services</h2>
+            <div class="cards">
+                <div class="card">
+                    <div class="icon">🔒</div>
+                    <h3>Secure Infrastructure</h3>
+                    <p>Enterprise-grade security for your critical systems.</p>
+                </div>
+                <div class="card">
+                    <div class="icon">☁️</div>
+                    <h3>Cloud Solutions</h3>
+                    <p>Scalable cloud deployments tailored to your needs.</p>
+                </div>
+                <div class="card">
+                    <div class="icon">📊</div>
+                    <h3>Analytics Platform</h3>
+                    <p>Real-time insights powered by our data engine.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2024 NexaCorp Inc. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

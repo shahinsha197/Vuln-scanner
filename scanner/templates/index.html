@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PassiveScanner — Vulnerability Scanner</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <span class="logo-icon">🛡️</span>
+                <span class="logo-text">PassiveScanner</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/" class="nav-item active">
+                    <span class="nav-icon">🔍</span> New Scan
+                </a>
+                <a href="#" class="nav-item disabled">
+                    <span class="nav-icon">📋</span> Reports
+                </a>
+                <a href="#" class="nav-item disabled">
+                    <span class="nav-icon">⚙️</span> Settings
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                {% if n8n_enabled %}
+                <div class="n8n-badge active">⚡ n8n Connected</div>
+                {% else %}
+                <div class="n8n-badge">⚡ n8n Offline</div>
+                {% endif %}
+                <p class="version">v1.0.0 · Educational Use Only</p>
+            </div>
+        </aside>
+
+        <!-- Main content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h1 class="page-title">Passive Vulnerability Scanner</h1>
+                <span class="badge-passive">Passive Mode</span>
+            </header>
+
+            <div class="dashboard-body">
+
+                <!-- Info banner -->
+                <div class="info-banner">
+                    <span class="info-icon">ℹ️</span>
+                    <p>This tool performs <strong>passive scanning only</strong> — it reads HTTP headers, HTML source, robots.txt, and common paths. No active exploitation is performed.</p>
+                </div>
+
+                <!-- Scan form -->
+                <div class="scan-card">
+                    <h2 class="scan-card-title">🔍 Enter Target URL</h2>
+                    <form action="/scan" method="POST" class="scan-form" id="scanForm">
+                        <div class="url-input-group">
+                            <input
+                                type="text"
+                                name="url"
+                                id="urlInput"
+                                class="url-input"
+                                placeholder="http://localhost:5001  or  https://example.com"
+                                autocomplete="off"
+                                required
+                            />
+                            <button type="submit" class="btn-scan" id="scanBtn">
+                                <span class="btn-icon">▶</span> Scan
+                            </button>
+                        </div>
+                        {% if error %}
+                        <div class="form-error">⚠️ {{ error }}</div>
+                        {% endif %}
+                    </form>
+
+                    <!-- Loading state -->
+                    <div class="loading-state" id="loadingState" style="display:none;">
+                        <div class="spinner"></div>
+                        <p>Scanning target… checking headers, cookies, HTML source, robots.txt…</p>
+                    </div>
+                </div>
+
+                <!-- What we check -->
+                <div class="checks-grid">
+                    <h3 class="section-title">What PassiveScanner checks</h3>
+                    <div class="checks-list">
+                        <div class="check-item"><span class="check-dot medium"></span>Missing Security Headers (CSP, HSTS, X-Frame-Options, X-Content-Type)</div>
+                        <div class="check-item"><span class="check-dot high"></span>Insecure Cookie Flags (HttpOnly, Secure)</div>
+                        <div class="check-item"><span class="check-dot medium"></span>Server Version Disclosure</div>
+                        <div class="check-item"><span class="check-dot high"></span>Directory Listing Exposed</div>
+                        <div class="check-item"><span class="check-dot medium"></span>Sensitive Paths in robots.txt</div>
+                        <div class="check-item"><span class="check-dot medium"></span>Credentials/Secrets in HTML Comments</div>
+                        <div class="check-item"><span class="check-dot medium"></span>Outdated JavaScript Libraries</div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('scanForm').addEventListener('submit', function() {
+            document.getElementById('scanBtn').disabled = true;
+            document.getElementById('scanBtn').innerHTML = '⏳ Scanning…';
+            document.getElementById('loadingState').style.display = 'flex';
+        });
+    </script>
+</body>
+</html>

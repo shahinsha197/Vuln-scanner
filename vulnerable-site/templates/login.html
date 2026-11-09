@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — NexaCorp</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- Default credentials: admin / nexacorp2024! -->
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">⬡ NexaCorp</div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="login-section">
+        <div class="container">
+            <div class="login-box">
+                <h2>Employee Login</h2>
+                <form action="/login" method="post">
+                    <input type="text" name="username" placeholder="Username" />
+                    <input type="password" name="password" placeholder="Password" />
+                    <button type="submit" class="btn-primary">Sign In</button>
+                </form>
+                <p class="forgot"><a href="#">Forgot password?</a></p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2024 NexaCorp Inc. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

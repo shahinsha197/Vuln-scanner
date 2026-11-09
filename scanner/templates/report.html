@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Report — PassiveScanner</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <span class="logo-icon">🛡️</span>
+                <span class="logo-text">PassiveScanner</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/" class="nav-item">
+                    <span class="nav-icon">🔍</span> New Scan
+                </a>
+                <a href="#" class="nav-item disabled">
+                    <span class="nav-icon">📋</span> Reports
+                </a>
+                <a href="#" class="nav-item disabled">
+                    <span class="nav-icon">⚙️</span> Settings
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <p class="version">v1.0.0 · Educational Use Only</p>
+            </div>
+        </aside>
+
+        <!-- Main content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div>
+                    <h1 class="page-title">Scan Report</h1>
+                    <p class="scan-meta-line">
+                        🌐 <strong>{{ result.meta.url }}</strong>
+                        &nbsp;·&nbsp; 🕐 {{ result.scanned_at }}
+                        &nbsp;·&nbsp; 📄 {{ result.meta.pages_checked | length }} page(s) checked
+                    </p>
+                </div>
+                <a href="/" class="btn-new-scan">+ New Scan</a>
+            </header>
+
+            <div class="dashboard-body">
+
+                {% if result.meta.status == 'error' %}
+                <!-- Error state -->
+                <div class="error-card">
+                    <div class="error-icon">❌</div>
+                    <h2>Scan Failed</h2>
+                    <p>{{ result.meta.error }}</p>
+                    <a href="/" class="btn-scan" style="margin-top:20px; display:inline-block;">Try Again</a>
+                </div>
+
+                {% else %}
+
+                <!-- ── Summary cards ─────────────────────────── -->
+                {% set s = result.summary %}
+                <div class="summary-row">
+
+                    <div class="summary-card overall severity-{{ s.overall_severity | lower }}">
+                        <div class="summary-label">Overall Risk</div>
+                        <div class="summary-score">{{ s.overall_score }}</div>
+                        <div class="summary-sev">{{ s.overall_severity }}</div>
+                        <div class="summary-sub">CVSS Base Score</div>
+                    </div>
+
+                    <div class="summary-card">
+                        <div class="summary-label">Total Issues</div>
+                        <div class="summary-big">{{ s.total }}</div>
+                        <div class="summary-sub">vulnerabilities found</div>
+                    </div>
+
+                    <div class="summary-card">
+                        <div class="summary-label">By Severity</div>
+                        <div class="sev-breakdown">
+                            <span class="sev-pill high">🔴 High: {{ s.high }}</span>
+                            <span class="sev-pill medium">🟡 Medium: {{ s.medium }}</span>
+                            <span class="sev-pill low">🟢 Low: {{ s.low }}</span>
+                            <span class="sev-pill critical">⚫ Critical: {{ s.critical }}</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ── Findings table ────────────────────────── -->
+                {% if result.findings %}
+                <div class="findings-section">
+                    <h2 class="section-title">📋 Vulnerabilities Found</h2>
+
+                    <div class="findings-list">
+                        {% for f in result.findings | sort(attribute='cvss', reverse=True) %}
+                        <div class="finding-card sev-border-{{ f.severity | lower }}">
+
+                            <div class="finding-header">
+                                <div class="finding-title-row">
+                                    <span class="finding-name">{{ f.name }}</span>
+                                    <div class="finding-badges">
+                                        <span class="cvss-badge sev-{{ f.severity | lower }}">
+                                            CVSS {{ f.cvss }}
+                                        </span>
+                                        <span class="sev-badge sev-{{ f.severity | lower }}">
+                                            {{ f.severity }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="finding-meta">
+                                    <span class="cwe-tag">{{ f.cwe }}</span>
+                                </div>
+                            </div>
+
+                            <div class="finding-body">
+                                <div class="finding-section">
+                                    <span class="finding-section-label">📌 Description</span>
+                                    <p>{{ f.description }}</p>
+                                </div>
+
+                                {% if f.evidence %}
+                                <div class="finding-section">
+                                    <span class="finding-section-label">🔎 Evidence</span>
+                                    <code class="evidence-code">{{ f.evidence }}</code>
+                                </div>
+                                {% endif %}
+
+                                <div class="finding-section">
+                                    <span class="finding-section-label">✅ Remediation</span>
+                                    <p>{{ f.remediation }}</p>
+                                </div>
+
+                                <div class="finding-section">
+                                    <a href="{{ f.reference }}" target="_blank" class="ref-link">
+                                        📖 Reference →
+                                    </a>
+                                </div>
+                            </div>
+
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% else %}
+                <div class="clean-card">
+                    <div class="clean-icon">✅</div>
+                    <h2>No Vulnerabilities Found</h2>
+                    <p>The target passed all passive checks.</p>
+                </div>
+                {% endif %}
+
+                <!-- ── Pages checked ─────────────────────────── -->
+                <div class="pages-checked">
+                    <h3 class="section-title">🔗 Pages Checked</h3>
+                    <ul>
+                        {% for page in result.meta.pages_checked %}
+                        <li><code>{{ page }}</code></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                {% endif %}
+
+            </div>
+        </main>
+    </div>
+</body>
+</html>

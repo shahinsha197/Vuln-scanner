@@ -1,0 +1,101 @@
+{
+  "name": "PassiveScanner — Vulnerability Scan Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "passive-scan",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook — Receive Scan Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "passive-scan"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract URL and scan_id from the incoming webhook body\nconst body = $input.first().json.body || $input.first().json;\nconst url = body.url || '';\nconst scan_id = body.scan_id || require('crypto').randomUUID();\n\nif (!url) throw new Error('No URL provided in request body');\n\nreturn [{ json: { url, scan_id } }];"
+      },
+      "id": "prepare-request",
+      "name": "Prepare Scan Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5002/api/scan",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "url", "value": "={{ $json.url }}" },
+            { "name": "scan_id", "value": "={{ $json.scan_id }}" }
+          ]
+        },
+        "options": {
+          "timeout": 60000,
+          "response": { "response": { "fullResponse": false } }
+        }
+      },
+      "id": "call-scanner-api",
+      "name": "Call PassiveScanner API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Format the scan results for the response\nconst result = $input.first().json;\nconst summary = result.summary || {};\nconst findings = result.findings || [];\n\nconst formatted = {\n  scan_id: result.scan_id,\n  url: result.meta?.url,\n  scanned_at: result.scanned_at,\n  overall_severity: summary.overall_severity,\n  overall_cvss: summary.overall_score,\n  total_findings: summary.total,\n  findings_summary: {\n    critical: summary.critical,\n    high: summary.high,\n    medium: summary.medium,\n    low: summary.low\n  },\n  findings: findings.map(f => ({\n    name: f.name,\n    cvss: f.cvss,\n    severity: f.severity,\n    cwe: f.cwe,\n    evidence: f.evidence\n  })),\n  report_url: `http://localhost:5002/report/${result.scan_id}`\n};\n\nreturn [{ json: formatted }];"
+      },
+      "id": "format-results",
+      "name": "Format Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "respond-to-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1200, 300]
+    }
+  ],
+  "connections": {
+    "Webhook — Receive Scan Request": {
+      "main": [[{ "node": "Prepare Scan Request", "type": "main", "index": 0 }]]
+    },
+    "Prepare Scan Request": {
+      "main": [[{ "node": "Call PassiveScanner API", "type": "main", "index": 0 }]]
+    },
+    "Call PassiveScanner API": {
+      "main": [[{ "node": "Format Results", "type": "main", "index": 0 }]]
+    },
+    "Format Results": {
+      "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "instanceId": "passivescanner-local"
+  }
+}
